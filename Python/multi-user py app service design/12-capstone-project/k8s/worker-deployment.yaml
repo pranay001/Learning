@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capstone-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: capstone-worker
+  template:
+    metadata:
+      labels:
+        app: capstone-worker
+    spec:
+      containers:
+        - name: worker
+          image: capstone-worker:v1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef: { name: capstone-config, key: database_url }
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef: { name: capstone-config, key: redis_url }
+            - name: REDIS_RESULT_URL
+              valueFrom:
+                configMapKeyRef: { name: capstone-config, key: redis_result_url }
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits: { cpu: "500m", memory: "256Mi" }
